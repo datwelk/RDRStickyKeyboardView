@@ -394,7 +394,7 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
                                                     name:UIKeyboardWillHideNotification
                                                   object:nil];
     
-    [self _unregisterForNotifications];
+    [self _unregisterForDeviceOrientationNotification];
 }
 
 - (void)_registerForDeviceOrientationNotification
@@ -420,6 +420,10 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 - (void)_deviceOrientationDidChange:(NSNotification *)notification
 {
+    if (!self.inputView.textView.isFirstResponder) {
+        return;
+    }
+    
     UIDeviceOrientation newOrientation = [UIDevice currentDevice].orientation;
     
     if (_lastOrientation == newOrientation) {
