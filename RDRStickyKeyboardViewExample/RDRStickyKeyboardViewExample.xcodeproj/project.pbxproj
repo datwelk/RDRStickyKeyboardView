@@ -1,0 +1,477 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		907FB7C91889DC5F00374F30 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7C81889DC5F00374F30 /* Foundation.framework */; };
+		907FB7CB1889DC5F00374F30 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7CA1889DC5F00374F30 /* CoreGraphics.framework */; };
+		907FB7CD1889DC5F00374F30 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7CC1889DC5F00374F30 /* UIKit.framework */; };
+		907FB7D31889DC5F00374F30 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 907FB7D11889DC5F00374F30 /* InfoPlist.strings */; };
+		907FB7D51889DC5F00374F30 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 907FB7D41889DC5F00374F30 /* main.m */; };
+		907FB7D91889DC5F00374F30 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 907FB7D81889DC5F00374F30 /* AppDelegate.m */; };
+		907FB7DB1889DC5F00374F30 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 907FB7DA1889DC5F00374F30 /* Images.xcassets */; };
+		907FB7E21889DC5F00374F30 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7E11889DC5F00374F30 /* XCTest.framework */; };
+		907FB7E31889DC5F00374F30 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7C81889DC5F00374F30 /* Foundation.framework */; };
+		907FB7E41889DC6000374F30 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7CC1889DC5F00374F30 /* UIKit.framework */; };
+		907FB7EC1889DC6000374F30 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 907FB7EA1889DC6000374F30 /* InfoPlist.strings */; };
+		907FB7EE1889DC6000374F30 /* RDRStickyKeyboardViewExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 907FB7ED1889DC6000374F30 /* RDRStickyKeyboardViewExampleTests.m */; };
+		907FB7F91889DC7700374F30 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 907FB7F81889DC7700374F30 /* ViewController.m */; };
+		907FB7FD1889DE0300374F30 /* RDRStickyKeyboardView.m in Sources */ = {isa = PBXBuildFile; fileRef = 907FB7FC1889DE0300374F30 /* RDRStickyKeyboardView.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		907FB7E51889DC6000374F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 907FB7BD1889DC5F00374F30 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 907FB7C41889DC5F00374F30;
+			remoteInfo = RDRStickyKeyboardViewExample;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		907FB7C51889DC5F00374F30 /* RDRStickyKeyboardViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RDRStickyKeyboardViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		907FB7C81889DC5F00374F30 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		907FB7CA1889DC5F00374F30 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		907FB7CC1889DC5F00374F30 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		907FB7D01889DC5F00374F30 /* RDRStickyKeyboardViewExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RDRStickyKeyboardViewExample-Info.plist"; sourceTree = "<group>"; };
+		907FB7D21889DC5F00374F30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		907FB7D41889DC5F00374F30 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		907FB7D61889DC5F00374F30 /* RDRStickyKeyboardViewExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RDRStickyKeyboardViewExample-Prefix.pch"; sourceTree = "<group>"; };
+		907FB7D71889DC5F00374F30 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		907FB7D81889DC5F00374F30 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		907FB7DA1889DC5F00374F30 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		907FB7E01889DC5F00374F30 /* RDRStickyKeyboardViewExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RDRStickyKeyboardViewExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		907FB7E11889DC5F00374F30 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		907FB7E91889DC6000374F30 /* RDRStickyKeyboardViewExampleTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RDRStickyKeyboardViewExampleTests-Info.plist"; sourceTree = "<group>"; };
+		907FB7EB1889DC6000374F30 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		907FB7ED1889DC6000374F30 /* RDRStickyKeyboardViewExampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RDRStickyKeyboardViewExampleTests.m; sourceTree = "<group>"; };
+		907FB7F71889DC7700374F30 /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		907FB7F81889DC7700374F30 /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		907FB7FB1889DE0300374F30 /* RDRStickyKeyboardView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RDRStickyKeyboardView.h; sourceTree = "<group>"; };
+		907FB7FC1889DE0300374F30 /* RDRStickyKeyboardView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RDRStickyKeyboardView.m; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		907FB7C21889DC5F00374F30 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7CB1889DC5F00374F30 /* CoreGraphics.framework in Frameworks */,
+				907FB7CD1889DC5F00374F30 /* UIKit.framework in Frameworks */,
+				907FB7C91889DC5F00374F30 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		907FB7DD1889DC5F00374F30 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7E21889DC5F00374F30 /* XCTest.framework in Frameworks */,
+				907FB7E41889DC6000374F30 /* UIKit.framework in Frameworks */,
+				907FB7E31889DC5F00374F30 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		907FB7BC1889DC5F00374F30 = {
+			isa = PBXGroup;
+			children = (
+				907FB7FA1889DE0300374F30 /* RDRStickyKeyboardView */,
+				907FB7CE1889DC5F00374F30 /* RDRStickyKeyboardViewExample */,
+				907FB7E71889DC6000374F30 /* RDRStickyKeyboardViewExampleTests */,
+				907FB7C71889DC5F00374F30 /* Frameworks */,
+				907FB7C61889DC5F00374F30 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		907FB7C61889DC5F00374F30 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7C51889DC5F00374F30 /* RDRStickyKeyboardViewExample.app */,
+				907FB7E01889DC5F00374F30 /* RDRStickyKeyboardViewExampleTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		907FB7C71889DC5F00374F30 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7C81889DC5F00374F30 /* Foundation.framework */,
+				907FB7CA1889DC5F00374F30 /* CoreGraphics.framework */,
+				907FB7CC1889DC5F00374F30 /* UIKit.framework */,
+				907FB7E11889DC5F00374F30 /* XCTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		907FB7CE1889DC5F00374F30 /* RDRStickyKeyboardViewExample */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7D71889DC5F00374F30 /* AppDelegate.h */,
+				907FB7D81889DC5F00374F30 /* AppDelegate.m */,
+				907FB7F71889DC7700374F30 /* ViewController.h */,
+				907FB7F81889DC7700374F30 /* ViewController.m */,
+				907FB7DA1889DC5F00374F30 /* Images.xcassets */,
+				907FB7CF1889DC5F00374F30 /* Supporting Files */,
+			);
+			path = RDRStickyKeyboardViewExample;
+			sourceTree = "<group>";
+		};
+		907FB7CF1889DC5F00374F30 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7D01889DC5F00374F30 /* RDRStickyKeyboardViewExample-Info.plist */,
+				907FB7D11889DC5F00374F30 /* InfoPlist.strings */,
+				907FB7D41889DC5F00374F30 /* main.m */,
+				907FB7D61889DC5F00374F30 /* RDRStickyKeyboardViewExample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		907FB7E71889DC6000374F30 /* RDRStickyKeyboardViewExampleTests */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7ED1889DC6000374F30 /* RDRStickyKeyboardViewExampleTests.m */,
+				907FB7E81889DC6000374F30 /* Supporting Files */,
+			);
+			path = RDRStickyKeyboardViewExampleTests;
+			sourceTree = "<group>";
+		};
+		907FB7E81889DC6000374F30 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7E91889DC6000374F30 /* RDRStickyKeyboardViewExampleTests-Info.plist */,
+				907FB7EA1889DC6000374F30 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		907FB7FA1889DE0300374F30 /* RDRStickyKeyboardView */ = {
+			isa = PBXGroup;
+			children = (
+				907FB7FB1889DE0300374F30 /* RDRStickyKeyboardView.h */,
+				907FB7FC1889DE0300374F30 /* RDRStickyKeyboardView.m */,
+			);
+			name = RDRStickyKeyboardView;
+			path = ../RDRStickyKeyboardView;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		907FB7C41889DC5F00374F30 /* RDRStickyKeyboardViewExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 907FB7F11889DC6000374F30 /* Build configuration list for PBXNativeTarget "RDRStickyKeyboardViewExample" */;
+			buildPhases = (
+				907FB7C11889DC5F00374F30 /* Sources */,
+				907FB7C21889DC5F00374F30 /* Frameworks */,
+				907FB7C31889DC5F00374F30 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RDRStickyKeyboardViewExample;
+			productName = RDRStickyKeyboardViewExample;
+			productReference = 907FB7C51889DC5F00374F30 /* RDRStickyKeyboardViewExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+		907FB7DF1889DC5F00374F30 /* RDRStickyKeyboardViewExampleTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 907FB7F41889DC6000374F30 /* Build configuration list for PBXNativeTarget "RDRStickyKeyboardViewExampleTests" */;
+			buildPhases = (
+				907FB7DC1889DC5F00374F30 /* Sources */,
+				907FB7DD1889DC5F00374F30 /* Frameworks */,
+				907FB7DE1889DC5F00374F30 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				907FB7E61889DC6000374F30 /* PBXTargetDependency */,
+			);
+			name = RDRStickyKeyboardViewExampleTests;
+			productName = RDRStickyKeyboardViewExampleTests;
+			productReference = 907FB7E01889DC5F00374F30 /* RDRStickyKeyboardViewExampleTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		907FB7BD1889DC5F00374F30 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Damiaan Twelker";
+				TargetAttributes = {
+					907FB7DF1889DC5F00374F30 = {
+						TestTargetID = 907FB7C41889DC5F00374F30;
+					};
+				};
+			};
+			buildConfigurationList = 907FB7C01889DC5F00374F30 /* Build configuration list for PBXProject "RDRStickyKeyboardViewExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 907FB7BC1889DC5F00374F30;
+			productRefGroup = 907FB7C61889DC5F00374F30 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				907FB7C41889DC5F00374F30 /* RDRStickyKeyboardViewExample */,
+				907FB7DF1889DC5F00374F30 /* RDRStickyKeyboardViewExampleTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		907FB7C31889DC5F00374F30 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7D31889DC5F00374F30 /* InfoPlist.strings in Resources */,
+				907FB7DB1889DC5F00374F30 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		907FB7DE1889DC5F00374F30 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7EC1889DC6000374F30 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		907FB7C11889DC5F00374F30 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7F91889DC7700374F30 /* ViewController.m in Sources */,
+				907FB7D91889DC5F00374F30 /* AppDelegate.m in Sources */,
+				907FB7FD1889DE0300374F30 /* RDRStickyKeyboardView.m in Sources */,
+				907FB7D51889DC5F00374F30 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		907FB7DC1889DC5F00374F30 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				907FB7EE1889DC6000374F30 /* RDRStickyKeyboardViewExampleTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		907FB7E61889DC6000374F30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 907FB7C41889DC5F00374F30 /* RDRStickyKeyboardViewExample */;
+			targetProxy = 907FB7E51889DC6000374F30 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		907FB7D11889DC5F00374F30 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				907FB7D21889DC5F00374F30 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		907FB7EA1889DC6000374F30 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				907FB7EB1889DC6000374F30 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		907FB7EF1889DC6000374F30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		907FB7F01889DC6000374F30 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		907FB7F21889DC6000374F30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
+				INFOPLIST_FILE = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		907FB7F31889DC6000374F30 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
+				INFOPLIST_FILE = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		907FB7F51889DC6000374F30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RDRStickyKeyboardViewExample.app/RDRStickyKeyboardViewExample";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "RDRStickyKeyboardViewExampleTests/RDRStickyKeyboardViewExampleTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		907FB7F61889DC6000374F30 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/RDRStickyKeyboardViewExample.app/RDRStickyKeyboardViewExample";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
+				INFOPLIST_FILE = "RDRStickyKeyboardViewExampleTests/RDRStickyKeyboardViewExampleTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		907FB7C01889DC5F00374F30 /* Build configuration list for PBXProject "RDRStickyKeyboardViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				907FB7EF1889DC6000374F30 /* Debug */,
+				907FB7F01889DC6000374F30 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		907FB7F11889DC6000374F30 /* Build configuration list for PBXNativeTarget "RDRStickyKeyboardViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				907FB7F21889DC6000374F30 /* Debug */,
+				907FB7F31889DC6000374F30 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		907FB7F41889DC6000374F30 /* Build configuration list for PBXNativeTarget "RDRStickyKeyboardViewExampleTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				907FB7F51889DC6000374F30 /* Debug */,
+				907FB7F61889DC6000374F30 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 907FB7BD1889DC5F00374F30 /* Project object */;
+}
