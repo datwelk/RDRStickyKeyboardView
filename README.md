@@ -1,4 +1,11 @@
 RDRStickyKeyboardView
 =====================
 
-Attempt to mimic iMessage's text input behavior on iOS 7 (UIScrollViewKeyboardDismissModeInteractive + persistent inputAccessoryView)
+Replication of iMessage's text input behavior on iOS 7 (UIScrollViewKeyboardDismissModeInteractive + persistent inputAccessoryView).
+
+What does it do
+===============
+
+
+
+
