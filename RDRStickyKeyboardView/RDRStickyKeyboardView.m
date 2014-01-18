@@ -5,6 +5,9 @@
 //  Copyright (c) 2014 Damiaan Twelker. All rights reserved.
 //
 // LICENSE
+// The MIT License (MIT)
+//
+// Copyright (c) 2014 Damiaan Twelker
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -27,109 +30,122 @@
 
 #pragma mark - Convenience methods
 
-static BOOL RDRInterfaceOrientationIsPortrait(UIInterfaceOrientation orientation) {
-    switch (orientation) {
-        case UIInterfaceOrientationPortrait:
-        case UIInterfaceOrientationPortraitUpsideDown:
-            return YES;
-            break;
-        case UIInterfaceOrientationLandscapeLeft:
-        case UIInterfaceOrientationLandscapeRight:
-            return NO;
-            break;
-    }
-}
-
-static BOOL RDRCurrentStatusBarOrientationIsPortrait() {
-    UIApplication *application = [UIApplication sharedApplication];
-    UIInterfaceOrientation orientation = application.statusBarOrientation;
-    return RDRInterfaceOrientationIsPortrait(orientation);
-}
-
-static BOOL RDRKeyboardSizeEqualsInputViewSize(CGSize keyboardSize,
-                                               CGSize inputViewSize) {
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
+/*
+ * @param keyboardFrame The frame of the keyboard whose size
+ * is to be compared. This frame should be in window coordinates.
+ * @param inputViewBounds The bounds of the input view whose
+ * size is to be compared.
+ *
+ * @return A boolean indicating whether keyboardFrame
+ * and inputViewBounds have equal sizes.
+ */
+static BOOL RDRKeyboardSizeEqualsInputViewSize(CGRect keyboardFrame,
+                                               CGRect inputViewBounds) {
+    // Convert keyboardFrame
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
+    CGRect convertedRect = [view convertRect:keyboardFrame
+                                    fromView:nil];
     
-    CGSize flippedInputViewSize = CGSizeZero;
-    flippedInputViewSize.width = inputViewSize.height;
-    flippedInputViewSize.height = inputViewSize.width;
-    
-    if (CGSizeEqualToSize(keyboardSize, inputViewSize) && portrait) {
-        return YES;
-    }
-    
-    if (CGSizeEqualToSize(keyboardSize, flippedInputViewSize) && !portrait) {
+    if (CGSizeEqualToSize(convertedRect.size, inputViewBounds.size)) {
         return YES;
     }
     
     return NO;
 }
 
+/*
+ * @param beginFrame The keyboard's frame in window coordinates
+ * before the animation.
+ * @param endFrame The keyboard's frame in window coordinates
+ * after the animation.
+ *
+ * @return A boolean indicating whether the difference
+ * between the y coordinate of beginFrame and the y coordinate
+ * of endFrame equal the height of endFrame after converting
+ * both parameters to view coordinates.
+ */
 static BOOL RDRKeyboardFrameChangeIsShowHideAnimation(CGRect beginFrame,
                                                       CGRect endFrame) {
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
+    
+    // Convert the begin frame to view coordinates
+    CGRect beginFrameConverted = [view convertRect:beginFrame
+                                          fromView:nil];
+    
+    // Convert the end frame to view coordinates
+    CGRect endFrameConverted = [view convertRect:endFrame
+                                        fromView:nil];
+    
     // New and old keyboard origin should differ exactly
     // one keyboard height
-    
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
-    CGFloat yDiff = endFrame.origin.y - beginFrame.origin.y;
-    CGFloat xDiff = endFrame.origin.x - beginFrame.origin.x;
-    
-    yDiff = fabs(yDiff);
-    xDiff = fabs(xDiff);
-    
-    if (portrait) {
-        if (yDiff != endFrame.size.height) {
-            return NO;
-        }
-    }
-    else {
-        if (xDiff != endFrame.size.width) {
-            return NO;
-        }
+    if (fabs(endFrameConverted.origin.y - beginFrameConverted.origin.y)
+        != endFrameConverted.size.height) {
+        return NO;
     }
     
     return YES;
 }
 
+/*
+ * @param keyboardFrame The frame of the keyboard in
+ * window coordinates.
+ *
+ * @return A boolean indicating whether the keyboard
+ * is completely visible AND positioned at the bottom
+ * of the window.
+ */
 static BOOL RDRKeyboardIsFullyShown(CGRect keyboardFrame) {
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
+    CGRect convertedRect = [view convertRect:keyboardFrame
+                                    fromView:nil];
     
-    CGFloat heightDiff = keyWindow.frame.size.height - keyboardFrame.size.height;
-    CGFloat widthDiff = keyWindow.frame.size.width - keyboardFrame.size.width;
-    
-    if (portrait) {
-        if (heightDiff != keyboardFrame.origin.y) {
-            return NO;
-        }
-    }
-    else {
-        if (widthDiff != keyboardFrame.origin.x) {
-            return NO;
-        }
+    if ((view.bounds.size.height - convertedRect.size.height)
+        != convertedRect.origin.y) {
+        return NO;
     }
     
     return YES;
 }
 
+/*
+ * @param keyboardFrame The frame of the keyboard in
+ * window coordinates.
+ *
+ * @return A boolean indicating whether given keyboardFrame's
+ * y coordinate equals the height of the view it is compared
+ * with, after having been converted to view coordinates.
+ */
 static BOOL RDRKeyboardIsFullyHidden(CGRect keyboardFrame) {
-    UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
+    // The window's rootViewController's view
+    // is fullscreen.
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
     
-    if (portrait) {
-        if (keyWindow.frame.size.height != keyboardFrame.origin.y) {
-            return NO;
-        }
-    }
-    else {
-        if (keyWindow.frame.size.width != keyboardFrame.origin.x) {
-            return NO;
-        }
+    // Convert rect to view coordinates, which will
+    // adjust the frame for rotation.
+    CGRect convertedRect = [view convertRect:keyboardFrame
+                                    fromView:nil];
+    
+    // Compare against the view's bounds, NOT the frame
+    // since the bounds are adjusted to rotation.
+    if (view.bounds.size.height != convertedRect.origin.y) {
+        return NO;
     }
     
     return YES;
 }
 
+/*
+ * @param textView A UITextView instance whose height
+ * should be calculated if no text is wrapped.
+ *
+ * @return A CGFloat value indicating the height
+ * the UITextView instance should be if all text
+ * is visible.
+ */
 static inline CGFloat RDRTextViewHeight(UITextView *textView) {
     NSTextContainer *textContainer = textView.textContainer;
     CGRect textRect =
@@ -176,6 +192,7 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 {
     // Add toolbar to bg, but dont use it
     _toolbar = [UIToolbar new];
+    self.toolbar.translucent = NO;
     [self addSubview:self.toolbar];
     
     // Add custom views
@@ -265,11 +282,13 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 #pragma mark - RDRStickyKeyboardView
 
-#define RDR_KEYBOARD_INPUT_VIEW_HEIGHT              44.0f
+#define RDR_KEYBOARD_INPUT_VIEW_HEIGHT                  44.0f
+
+static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 @interface RDRStickyKeyboardView () <UITextViewDelegate> {
-    CGRect _currentKeyboardFrame;
-    UIDeviceOrientation _lastOrientation;
+    UIInterfaceOrientation _currentOrientation;
+    CGPoint _contentOffset;
 }
 
 @property (nonatomic, strong) RDRKeyboardInputView *dummyInputView;
@@ -288,6 +307,8 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
         _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
         UIViewAutoresizingFlexibleHeight;
         _scrollView.keyboardDismissMode = UIScrollViewKeyboardDismissModeInteractive;
+        
+        _currentOrientation = RDRInterfaceOrientationUnknown;
         
         [self _setupSubviews];
         [self _registerForNotifications];
@@ -376,8 +397,6 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
                                              selector:@selector(_keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
-    
-    [self _registerForDeviceOrientationNotification];
 }
 
 - (void)_unregisterForNotifications
@@ -393,55 +412,22 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillHideNotification
                                                   object:nil];
-    
-    [self _unregisterForDeviceOrientationNotification];
-}
-
-- (void)_registerForDeviceOrientationNotification
-{
-    _lastOrientation = [UIDevice currentDevice].orientation;
-    [[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(_deviceOrientationDidChange:)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
-}
-
-- (void)_unregisterForDeviceOrientationNotification
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self
-                                                    name:UIDeviceOrientationDidChangeNotification
-                                                  object:nil];
-    [[UIDevice currentDevice] endGeneratingDeviceOrientationNotifications];
 }
 
 #pragma mark - Notification handlers
-#pragma mark - Orientation
-
-- (void)_deviceOrientationDidChange:(NSNotification *)notification
-{
-    if (!self.inputView.textView.isFirstResponder) {
-        return;
-    }
-    
-    UIDeviceOrientation newOrientation = [UIDevice currentDevice].orientation;
-    
-    if (_lastOrientation == newOrientation) {
-        return;
-    }
-    if (_lastOrientation == UIDeviceOrientationUnknown) {
-        _lastOrientation = newOrientation;
-        return;
-    }
-    
-    _lastOrientation = newOrientation;
-    [self _updateInputViewTextViewFrameAndForceReload:YES];
-}
-
 #pragma mark - Keyboard
 
 - (void)_keyboardWillShow:(NSNotification *)notification
 {
+    NSDictionary *userInfo = notification.userInfo;
+    CGRect endFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGRect beginFrame = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
+    CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
+    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    
+    // Check if orientation changed
+    [self _updateInputViewFrameIfOrientationChanged:endFrame];
+    
     // This method is called because the user has tapped
     // the dummy input view, which has become first responder.
     // Take over first responder status from the dummy input view
@@ -449,22 +435,14 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     // inputAccessoryView of the dummy input view.
     [self.inputView.textView becomeFirstResponder];
     
-    // If the keyboard is actually shown,
-    // adapt the content animated
-    NSDictionary *userInfo = notification.userInfo;
-    CGRect endFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
-    CGRect beginFrame = [userInfo[UIKeyboardFrameBeginUserInfoKey] CGRectValue];
-    CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
-    UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
-    
     // Disregard false notification
     // This works around a bug in iOS
-    CGSize inputViewSize = self.inputView.frame.size;
-    if (RDRKeyboardSizeEqualsInputViewSize(endFrame.size, inputViewSize)) {
+    CGRect inputViewBounds = self.inputView.bounds;
+    if (RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
     
-    if (RDRKeyboardSizeEqualsInputViewSize(beginFrame.size, inputViewSize)) {
+    if (RDRKeyboardSizeEqualsInputViewSize(beginFrame, inputViewBounds)) {
         return;
     }
     
@@ -484,13 +462,10 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
         return;
     }
     
+    _contentOffset = self.scrollView.contentOffset;
     [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    
-    
-    [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    [self _scrollViewScrollToBottomWithKeyboardFrame:endFrame
-                                               curve:curve
-                                            duration:duration];
+    [self _scrollViewScrollToBottomWithAnimationCurve:curve
+                                             duration:duration];
 }
 
 - (void)_keyboardWillChangeFrame:(NSNotification *)notification
@@ -508,11 +483,6 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     // determines if that is the case and adjusts the interface
     // accordingly.
     [self _keyboardWillSwitch:notification];
-    
-    // Save keyboard frame. The frame is used inside the
-    // updateFrameForTextView method.
-    NSDictionary *userInfo = notification.userInfo;
-    _currentKeyboardFrame = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue];
 }
 
 - (void)_keyboardWillHide:(NSNotification *)notification
@@ -523,29 +493,31 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
     
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
-    
     // When the user has lifted his or her finger, the
     // size of the end frame equals the size of the input view.
-    CGSize inputViewSize = self.inputView.frame.size;
-    if (!RDRKeyboardSizeEqualsInputViewSize(endFrame.size, inputViewSize)) {
+    CGRect inputViewBounds = self.inputView.bounds;
+    if (!RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
     
     // Construct the frame that should actually have been
     // passed into the userinfo dictionary and use it
     // internally.
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    CGSize windowSize = keyWindow.frame.size;
+    // The subsequently called methods expect window
+    // coordinates. Construct the frame, convert it to
+    // window coordinates when done.
+    UIView *view = self.window.rootViewController.view;
+    CGRect beginFrameConverted = [view convertRect:beginFrame
+                                          fromView:nil];
     
-    CGRect newEndFrame = CGRectZero;
-    newEndFrame.origin.y = portrait ? windowSize.height : windowSize.width;
-    newEndFrame.size = beginFrame.size;
+    CGRect viewRect = CGRectZero;
+    viewRect.origin.y = view.bounds.size.height;
+    viewRect.size = beginFrameConverted.size;
     
-    [self _scrollViewAdaptInsetsToKeyboardFrame:newEndFrame];
-    [self _scrollViewScrollToBottomWithKeyboardFrame:newEndFrame
-                                               curve:curve
-                                            duration:duration];
+    CGRect windowRect = [self.window convertRect:viewRect fromView:view];
+    [self _scrollViewAdaptInsetsToKeyboardFrame:windowRect];
+    [self _scrollViewScrollToBottomWithAnimationCurve:curve
+                                             duration:duration];
 }
 
 #pragma mark - Notification handler helpers
@@ -560,12 +532,12 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     
     // Disregard false notification
     // This works around a bug in iOS
-    CGSize inputViewSize = self.inputView.frame.size;
-    if (RDRKeyboardSizeEqualsInputViewSize(endFrame.size, inputViewSize)) {
+    CGRect inputViewBounds = self.inputView.bounds;
+    if (RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
     
-    if (RDRKeyboardSizeEqualsInputViewSize(beginFrame.size, inputViewSize)) {
+    if (RDRKeyboardSizeEqualsInputViewSize(beginFrame, inputViewBounds)) {
         return;
     }
     
@@ -585,24 +557,25 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     // different height.
     
     [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    [self _scrollViewScrollToBottomWithKeyboardFrame:endFrame
-                                               curve:curve
-                                            duration:duration];
+    [self _scrollViewScrollToBottomWithAnimationCurve:curve
+                                             duration:duration];
 }
 
 - (void)_scrollViewAdaptInsetsToKeyboardFrame:(CGRect)keyboardFrame
 {
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
+    // Convert keyboard frame to view coordinates
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
+    CGRect convertedRect = [view convertRect:keyboardFrame
+                                    fromView:nil];
     
-    CGFloat keyboardHeight = keyboardFrame.size.height;
-    CGFloat keyboardWidth = keyboardFrame.size.width;
-    CGFloat inputViewHeight = self.inputView.frame.size.height;
-   
+    CGFloat keyboardHeight = convertedRect.size.height;
+    CGFloat inputViewHeight = self.inputView.bounds.size.height;
+    
     // If the keyboard is hidden, set bottom inset to zero.
     // If the keyboard is not hidden, set the content inset's bottom
     // to the height of the area occupied by the keyboard itself.
-    CGFloat bottomInset = portrait ? keyboardHeight : keyboardWidth;
-    bottomInset -= inputViewHeight;
+    CGFloat bottomInset = keyboardHeight - inputViewHeight;
     bottomInset *= RDRKeyboardIsFullyHidden(keyboardFrame) ? 0 : 1;
     
     UIEdgeInsets contentInset = self.scrollView.contentInset;
@@ -614,9 +587,8 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     self.scrollView.scrollIndicatorInsets = scrollIndicatorInsets;
 }
 
-- (void)_scrollViewScrollToBottomWithKeyboardFrame:(CGRect)keyboardFrame
-                                             curve:(UIViewAnimationCurve)curve
-                                          duration:(CGFloat)duration
+- (void)_scrollViewScrollToBottomWithAnimationCurve:(UIViewAnimationCurve)curve
+                                           duration:(CGFloat)duration
 {
     CGFloat contentHeight = self.scrollView.contentSize.height;
     CGFloat scrollViewHeight = self.scrollView.bounds.size.height;
@@ -630,7 +602,8 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     // bottom inset, which has been set through the method
     // _scrollViewAdaptInsetsToKeyboardFrame:.
     CGPoint contentOffset = self.scrollView.contentOffset;
-    contentOffset.y = contentHeight - (scrollViewHeight - bottomInset);
+    contentOffset.y = MAX(_contentOffset.y,
+                          contentHeight - (scrollViewHeight - bottomInset));
     
     // Animate scroll
     void(^animations)() = ^{
@@ -644,47 +617,67 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
                      completion:nil];
 }
 
+- (void)_updateInputViewFrameIfOrientationChanged:(CGRect)keyboardFrame
+{
+    // Check if orientation changed
+    UIApplication *application = [UIApplication sharedApplication];
+    UIInterfaceOrientation orientation = application.statusBarOrientation;
+    
+    if (_currentOrientation != RDRInterfaceOrientationUnknown &&
+        _currentOrientation != orientation) {
+        [self _updateInputViewFrameWithKeyboardFrame:keyboardFrame
+                                         forceReload:YES];
+    }
+    
+    _currentOrientation = orientation;
+}
+
 #pragma mark - Textview delegate helpers
 
-- (void)_updateInputViewTextViewFrameAndForceReload:(BOOL)reload
+- (void)_updateInputViewFrameWithKeyboardFrame:(CGRect)keyboardFrame
+                                   forceReload:(BOOL)reload
 {
-    BOOL portrait = RDRCurrentStatusBarOrientationIsPortrait();
+    // If the keyboardFrame equals CGRectZero and
+    // the inputView is not visible yet, we won't be able
+    // to access the keyboard's frame.
+    NSCAssert(!(CGRectEqualToRect(keyboardFrame, CGRectZero) &&
+                self.inputView.superview == nil), nil);
     
-    // Use the keyWindow to convert the frame.
-    // The keyWindow should be the window with the keyboard
-    // on it (UITextEffectsWindow)
-    
-    // Add the top of the scrollview's top content inset,
-    // since on iOS 7 all views inside viewcontrollers are
-    // positioned underneath the navigation bar.
+    // Check if we can manually grab the keyboard's frame.
+    // If not, use the keyboardFrame parameter.
     UIWindow *window = [UIApplication sharedApplication].keyWindow;
-    CGRect convertedFrame = [window convertRect:self.frame
-                                       fromView:self.superview];
-    convertedFrame.origin.y += portrait ? self.scrollView.contentInset.top : 0;
-    convertedFrame.origin.x += portrait ? 0 : self.scrollView.contentInset.top;
+    UIView *view = window.rootViewController.view;
+    CGRect windowKeyboardFrame = keyboardFrame;
     
-    // Calculate the tallest height the input view could
-    // possibly have
-    CGFloat maxInputViewHeight = portrait ?
-    (_currentKeyboardFrame.origin.y - convertedFrame.origin.y) :
-    (_currentKeyboardFrame.origin.x - convertedFrame.origin.x);
-    maxInputViewHeight += self.inputView.frame.size.height;
+    if (self.inputView.superview != nil) {
+        windowKeyboardFrame = [window convertRect:self.inputView.superview.frame
+                                         fromView:self.inputView.superview.superview];
+    }
     
-    // Calculate the height the input view wants to have
-    // based on its textview's content
+    // Convert keyboard frame to view coordinates
+    CGRect viewKeyboardFrame = [view convertRect:windowKeyboardFrame
+                                        fromView:nil];
+    
+    // Calculate max input view height
+    CGFloat maxInputViewHeight = viewKeyboardFrame.origin.y -
+    self.frame.origin.y - self.scrollView.contentInset.top;
+    maxInputViewHeight += self.inputView.bounds.size.height;
+    
+    // Calculate the height the input view ideally
+    // has based on its textview's content
     UITextView *textView = self.inputView.textView;
     CGFloat newInputViewHeight = RDRTextViewHeight(textView);
     newInputViewHeight += (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
     newInputViewHeight = ceilf(newInputViewHeight);
     newInputViewHeight = MIN(maxInputViewHeight, newInputViewHeight);
     
-    
-    // If the new height equals the current height, nothing
-    // has to be changed
-    if (self.inputView.frame.size.height == newInputViewHeight) {
+    // If the new input view height equals the current,
+    // nothing has to be changed
+    if (self.inputView.bounds.size.height == newInputViewHeight) {
         return;
     }
     
+    // Propagate the height change
     // Update the scrollview's frame
     CGRect scrollViewFrame = self.scrollView.frame;
     scrollViewFrame.size.height = self.frame.size.height - newInputViewHeight;
@@ -734,7 +727,8 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 - (void)textViewDidChange:(UITextView *)textView
 {
-    [self _updateInputViewTextViewFrameAndForceReload:NO];
+    [self _updateInputViewFrameWithKeyboardFrame:CGRectZero
+                                     forceReload:NO];
 }
 
 @end
