@@ -22,10 +22,15 @@ keyboardView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresiz
 [self.view addSubview:keyboardView];
 ```
 
+![Demo](Demo.gif)
+
 ## Requirements
 * ARC
-* iOS 7+
+* iOS 7
 
 ## Known issues
 * The keyboard's inputAccessoryView updates after the device's orientation has changed, instead of during the rotation
 * The keyboard is visible at all times when editing, also with an external keyboard connected
+
+## License
+The code is licensed under the MIT license. See the file `LICENSE` for details.
