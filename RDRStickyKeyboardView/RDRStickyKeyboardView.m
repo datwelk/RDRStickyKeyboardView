@@ -288,7 +288,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 @interface RDRStickyKeyboardView () <UITextViewDelegate> {
     UIInterfaceOrientation _currentOrientation;
-    CGPoint _contentOffset;
 }
 
 @property (nonatomic, strong) RDRKeyboardInputView *dummyInputView;
@@ -462,7 +461,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
         return;
     }
     
-    _contentOffset = self.scrollView.contentOffset;
     [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
     [self _scrollViewScrollToBottomWithAnimationCurve:curve
                                              duration:duration];
@@ -602,8 +600,8 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // bottom inset, which has been set through the method
     // _scrollViewAdaptInsetsToKeyboardFrame:.
     CGPoint contentOffset = self.scrollView.contentOffset;
-    contentOffset.y = MAX(_contentOffset.y,
-                          contentHeight - (scrollViewHeight - bottomInset));
+    contentOffset.y = MAX(-self.scrollView.contentInset.top,
+                          contentHeight - (scrollViewHeight - bottomInset));;
     
     // Animate scroll
     void(^animations)() = ^{
