@@ -4,27 +4,27 @@
 //  Created by Damiaan Twelker on 17/01/14.
 //  Copyright (c) 2014 Damiaan Twelker. All rights reserved.
 //
-// LICENSE
-// The MIT License (MIT)
+//  LICENSE
+//  The MIT License (MIT)
 //
-// Copyright (c) 2014 Damiaan Twelker
+//  Copyright (c) 2014 Damiaan Twelker
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy of
-// this software and associated documentation files (the "Software"), to deal in
-// the Software without restriction, including without limitation the rights to
-// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-// the Software, and to permit persons to whom the Software is furnished to do so,
-// subject to the following conditions:
+//  Permission is hereby granted, free of charge, to any person obtaining a copy of
+//  this software and associated documentation files (the "Software"), to deal in
+//  the Software without restriction, including without limitation the rights to
+//  use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//  the Software, and to permit persons to whom the Software is furnished to do so,
+//  subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//  FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+//  COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+//  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+//  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import "RDRStickyKeyboardView.h"
 
@@ -157,6 +157,21 @@ static inline CGFloat RDRTextViewHeight(UITextView *textView) {
     return textViewHeight;
 }
 
+static CGFloat RDRContentOffsetForBottom(UIScrollView *scrollView) {
+    CGFloat contentHeight = scrollView.contentSize.height;
+    CGFloat scrollViewHeight = scrollView.bounds.size.height;
+    
+    UIEdgeInsets contentInset = scrollView.contentInset;
+    CGFloat bottomInset = contentInset.bottom;
+    CGFloat topInset = contentInset.top;
+    
+    CGFloat contentOffsetY;
+    contentOffsetY = contentHeight - (scrollViewHeight - bottomInset);
+    contentOffsetY = MAX(contentOffsetY, -topInset);
+    
+    return contentOffsetY;
+}
+
 static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimationCurve curve) {
     return (curve << 16 | UIViewAnimationOptionBeginFromCurrentState);
 }
@@ -280,6 +295,58 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 @end
 
+#pragma mark - UIScrollView + RDRStickyKeyboardView
+
+#define RDR_SCROLL_ANIMATION_DURATION                   0.25f
+
+@implementation UIScrollView (RDRStickyKeyboardView)
+
+#pragma mark - Public
+
+- (BOOL)rdr_isAtBottom
+{
+    UIScrollView *scrollView = self;
+    CGFloat y = scrollView.contentOffset.y;
+    CGFloat yBottom = RDRContentOffsetForBottom(scrollView);
+    
+    return (y == yBottom);
+}
+
+- (void)rdr_scrollToBottomAnimated:(BOOL)animated
+               withCompletionBlock:(void(^)(void))completionBlock
+{
+    [self rdr_scrollToBottomWithOptions:0
+                               duration:RDR_SCROLL_ANIMATION_DURATION
+                        completionBlock:completionBlock];
+}
+
+- (void)rdr_scrollToBottomWithOptions:(UIViewAnimationOptions)options
+                             duration:(CGFloat)duration
+                      completionBlock:(void(^)(void))completionBlock
+{
+    UIScrollView *scrollView = self;
+    CGPoint contentOffset = scrollView.contentOffset;
+    contentOffset.y = RDRContentOffsetForBottom(scrollView);
+    
+    void(^animations)() = ^{
+        scrollView.contentOffset = contentOffset;
+    };
+    
+    void(^completion)(BOOL) = ^(BOOL finished){
+        if (completionBlock) {
+            completionBlock();
+        }
+    };
+    
+    [UIView animateWithDuration:duration
+                          delay:0.0f
+                        options:options
+                     animations:animations
+                     completion:completion];
+}
+
+@end
+
 #pragma mark - RDRStickyKeyboardView
 
 #define RDR_KEYBOARD_INPUT_VIEW_HEIGHT                  44.0f
@@ -343,7 +410,8 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // Setup the view where the user will actually
     // be typing in
     _inputView = [RDRKeyboardInputView new];
-    self.inputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+    self.inputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
+    UIViewAutoresizingFlexibleHeight;
     self.inputView.textView.delegate = self;
     
     // Setup a dummy input view that appears on the bottom
@@ -353,7 +421,8 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // first responder as soon as the dummy view's textview
     // has become first responder.
     self.dummyInputView = [RDRKeyboardInputView new];
-    self.dummyInputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleTopMargin;
+    self.dummyInputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
+    UIViewAutoresizingFlexibleTopMargin;
     self.dummyInputView.textView.inputAccessoryView = self.inputView;
     self.dummyInputView.textView.tintColor = [UIColor clearColor]; // hide cursor
     self.dummyInputView.textView.delegate = self;
@@ -462,8 +531,9 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     }
     
     [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    [self _scrollViewScrollToBottomWithAnimationCurve:curve
-                                             duration:duration];
+    [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
+                                          duration:duration
+                                   completionBlock:nil];
 }
 
 - (void)_keyboardWillChangeFrame:(NSNotification *)notification
@@ -514,8 +584,9 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     CGRect windowRect = [self.window convertRect:viewRect fromView:view];
     [self _scrollViewAdaptInsetsToKeyboardFrame:windowRect];
-    [self _scrollViewScrollToBottomWithAnimationCurve:curve
-                                             duration:duration];
+    [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
+                                          duration:duration
+                                   completionBlock:nil];
 }
 
 #pragma mark - Notification handler helpers
@@ -555,9 +626,12 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // different height.
     
     [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    [self _scrollViewScrollToBottomWithAnimationCurve:curve
-                                             duration:duration];
+    [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
+                                          duration:duration
+                                   completionBlock:nil];
 }
+
+#pragma mark - Scrollview
 
 - (void)_scrollViewAdaptInsetsToKeyboardFrame:(CGRect)keyboardFrame
 {
@@ -585,35 +659,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     self.scrollView.scrollIndicatorInsets = scrollIndicatorInsets;
 }
 
-- (void)_scrollViewScrollToBottomWithAnimationCurve:(UIViewAnimationCurve)curve
-                                           duration:(CGFloat)duration
-{
-    CGFloat contentHeight = self.scrollView.contentSize.height;
-    CGFloat scrollViewHeight = self.scrollView.bounds.size.height;
-    CGFloat bottomInset = self.scrollView.contentInset.bottom;
-    
-    // To scroll a scrollview to the bottom, one would
-    // set the content offset y coordinate to the content height
-    // minus the height of the scrollview. When the keyboard is
-    // visible, however, the actually visible height of the
-    // scrollview is less - the difference exactly equals the
-    // bottom inset, which has been set through the method
-    // _scrollViewAdaptInsetsToKeyboardFrame:.
-    CGPoint contentOffset = self.scrollView.contentOffset;
-    contentOffset.y = MAX(-self.scrollView.contentInset.top,
-                          contentHeight - (scrollViewHeight - bottomInset));;
-    
-    // Animate scroll
-    void(^animations)() = ^{
-        self.scrollView.contentOffset = contentOffset;
-    };
-    
-    [UIView animateWithDuration:duration
-                          delay:0.0f
-                        options:RDRAnimationOptionsForCurve(curve)
-                     animations:animations
-                     completion:nil];
-}
+#pragma mark - Input view
 
 - (void)_updateInputViewFrameIfOrientationChanged:(CGRect)keyboardFrame
 {
@@ -629,8 +675,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     _currentOrientation = orientation;
 }
-
-#pragma mark - Textview delegate helpers
 
 - (void)_updateInputViewFrameWithKeyboardFrame:(CGRect)keyboardFrame
                                    forceReload:(BOOL)reload
