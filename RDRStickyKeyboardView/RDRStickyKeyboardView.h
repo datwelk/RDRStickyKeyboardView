@@ -61,5 +61,6 @@
 
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;
+- (void)reloadInputAccessoryView;
 
 @end

@@ -180,8 +180,13 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 #define RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL                     5
 #define RDR_KEYBOARD_INPUT_VIEW_MARGIN_HORIZONTAL                   8
+#define RDR_KEYBOARD_INPUT_VIEW_MARGIN_BUTTONS_VERTICAL             7
 
-@interface RDRKeyboardInputView ()
+@interface RDRKeyboardInputView () {
+    UITextView *_textView;
+    UIButton *_leftButton;
+    UIButton *_rightButton;
+}
 
 @property (nonatomic, strong, readonly) UIToolbar *toolbar;
 
@@ -193,6 +198,7 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 - (id)initWithFrame:(CGRect)frame
 {
+    // Input view sets its own height
     if (self = [super initWithFrame:frame])
     {
         [self _setupSubviews];
@@ -201,36 +207,66 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     return self;
 }
 
-#pragma mark - Private
+#pragma mark - Getters
 
-- (void)_setupSubviews
+- (UITextView *)textView
 {
-    // Add toolbar to bg, but dont use it
-    _toolbar = [UIToolbar new];
-    self.toolbar.translucent = NO;
-    [self addSubview:self.toolbar];
-    
-    // Add custom views
-    _leftButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.leftButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
-    [self.leftButton setTitle:NSLocalizedString(@"Other", nil)
-                     forState:UIControlStateNormal];
-    [self addSubview:self.leftButton];
-    
-    _rightButton = [UIButton buttonWithType:UIButtonTypeSystem];
-    self.rightButton.titleLabel.font = [UIFont boldSystemFontOfSize:15.0f];
-    [self.rightButton setTitle:NSLocalizedString(@"Send", nil)
-                      forState:UIControlStateNormal];
-    [self addSubview:self.rightButton];
+    if (_textView != nil) {
+        return _textView;
+    }
     
     _textView = [UITextView new];
     self.textView.font = [UIFont systemFontOfSize:15.0f];
     self.textView.layer.cornerRadius = 5.0f;
     self.textView.layer.borderWidth = 1.0f;
-    self.textView.layer.borderColor = [UIColor colorWithRed:200.0f/255.0f
-                                                      green:200.0f/255.0f
-                                                       blue:205.0f/255.0f
-                                                      alpha:1.0f].CGColor;
+    self.textView.layer.borderColor =  [UIColor colorWithRed:200.0f/255.0f
+                                                       green:200.0f/255.0f
+                                                        blue:205.0f/255.0f
+                                                       alpha:1.0f].CGColor;
+    
+    return self.textView;
+}
+
+- (UIButton *)leftButton
+{
+    if (_leftButton != nil) {
+        return _leftButton;
+    }
+    
+    _leftButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _leftButton.titleLabel.font = [UIFont systemFontOfSize:15.0f];
+    
+    [_leftButton setTitle:NSLocalizedString(@"Other", nil)
+                 forState:UIControlStateNormal];
+    
+    return _leftButton;
+}
+
+- (UIButton *)rightButton
+{
+    if (_rightButton != nil) {
+        return _rightButton;
+    }
+    
+    _rightButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _rightButton.titleLabel.font = [UIFont systemFontOfSize:14.0f];
+    
+    [_rightButton setTitle:NSLocalizedString(@"Send", nil)
+                  forState:UIControlStateNormal];
+    
+    return _rightButton;
+}
+
+#pragma mark - Private
+
+- (void)_setupSubviews
+{
+    _toolbar = [UIToolbar new];
+    _toolbar.translucent = YES;
+    [self addSubview:self.toolbar];
+    
+    [self addSubview:self.leftButton];
+    [self addSubview:self.rightButton];
     [self addSubview:self.textView];
     
     [self _setupConstraints];
@@ -238,11 +274,34 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 - (void)_setupConstraints
 {
+    // Calculate frame with current settings
+    CGFloat height = RDRTextViewHeight(self.textView) +
+    (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
+    height = roundf(height);
+    
+    CGRect newFrame = self.frame;
+    newFrame.size.height = height;
+    self.frame = newFrame;
+    
+    // Calculate button margin with new frame height
+    [self.leftButton sizeToFit];
+    [self.rightButton sizeToFit];
+    
+    CGFloat leftButtonMargin =
+    roundf((height - self.leftButton.frame.size.height) / 2.0f);
+    CGFloat rightButtonMargin =
+    roundf((height - self.rightButton.frame.size.height) / 2.0f);
+    
+    leftButtonMargin = roundf(leftButtonMargin);
+    rightButtonMargin = roundf(rightButtonMargin);
+    
+    // Set autolayout property
     self.toolbar.translatesAutoresizingMaskIntoConstraints = NO;
     self.leftButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.rightButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.textView.translatesAutoresizingMaskIntoConstraints = NO;
     
+    // Define constraints
     NSArray *constraints = nil;
     NSString *visualFormat = nil;
     NSDictionary *views = @{ @"leftButton" : self.leftButton,
@@ -250,7 +309,9 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
                              @"textView" : self.textView,
                              @"toolbar" : self.toolbar};
     NSDictionary *metrics = @{ @"hor" : @(RDR_KEYBOARD_INPUT_VIEW_MARGIN_HORIZONTAL),
-                               @"ver" : @(RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL)};
+                               @"ver" : @(RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL),
+                               @"leftButtonMargin" : @(leftButtonMargin),
+                               @"rightButtonMargin" : @(rightButtonMargin)};
     
     constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[toolbar]|"
                                                           options:0
@@ -271,14 +332,14 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
                                                             views:views];
     [self addConstraints:constraints];
     
-    visualFormat = @"V:[leftButton]-(==ver)-|";
+    visualFormat = @"V:|-(>=leftButtonMargin)-[leftButton]-(==leftButtonMargin)-|";
     constraints = [NSLayoutConstraint constraintsWithVisualFormat:visualFormat
                                                           options:0
                                                           metrics:metrics
                                                             views:views];
     [self addConstraints:constraints];
     
-    visualFormat = @"V:[rightButton]-(==ver)-|";
+    visualFormat = @"V:|-(>=rightButtonMargin)-[rightButton]-(==rightButtonMargin)-|";
     constraints = [NSLayoutConstraint constraintsWithVisualFormat:visualFormat
                                                           options:0
                                                           metrics:metrics
@@ -349,8 +410,6 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 #pragma mark - RDRStickyKeyboardView
 
-#define RDR_KEYBOARD_INPUT_VIEW_HEIGHT                  44.0f
-
 static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 @interface RDRStickyKeyboardView () <UITextViewDelegate> {
@@ -393,11 +452,20 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 - (void)willMoveToSuperview:(UIView *)newSuperview
 {
     if (newSuperview == nil) {
+        [super willMoveToSuperview:newSuperview];
         return;
     }
     
     [self _setInitialFrames];
     [super willMoveToSuperview:newSuperview];
+}
+
+#pragma mark - Public
+
+- (void)reloadInputAccessoryView
+{
+    [self _updateInputViewFrameWithKeyboardFrame:CGRectZero
+                                     forceReload:YES];
 }
 
 #pragma mark - Private
@@ -433,12 +501,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 {
     CGRect scrollViewFrame = CGRectZero;
     scrollViewFrame.size.width = self.frame.size.width;
-    scrollViewFrame.size.height = self.frame.size.height - RDR_KEYBOARD_INPUT_VIEW_HEIGHT;
+    scrollViewFrame.size.height = self.frame.size.height - self.inputView.frame.size.height;
     self.scrollView.frame = scrollViewFrame;
     
-    CGRect inputViewFrame = CGRectZero;
+    CGRect inputViewFrame = self.inputView.frame;
     inputViewFrame.size.width = self.frame.size.width;
-    inputViewFrame.size.height = RDR_KEYBOARD_INPUT_VIEW_HEIGHT;
     self.inputView.frame = inputViewFrame;
     
     CGRect dummyInputViewFrame = CGRectZero;
@@ -682,8 +749,10 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // If the keyboardFrame equals CGRectZero and
     // the inputView is not visible yet, we won't be able
     // to access the keyboard's frame.
+#ifdef DEBUG
     NSCAssert(!(CGRectEqualToRect(keyboardFrame, CGRectZero) &&
                 self.inputView.superview == nil), nil);
+#endif
     
     // Check if we can manually grab the keyboard's frame.
     // If not, use the keyboardFrame parameter.
