@@ -3,6 +3,8 @@ RDRStickyKeyboardView
 
 Replication of iMessage's text input behavior on iOS 7 (`UIScrollViewKeyboardDismissModeInteractive` + persistent `inputAccessoryView`).
 
+![Demo](Demo.gif)
+
 ## What does it do
 In the chat view of Apple's iMessage app, it is possible to interactively dismiss the keyboard. This feature has been introduced publicly in iOS 7 by means of the `keyboardDismissMode` property on `UIScrollView` and the corresponding enum values. 
 
@@ -21,8 +23,6 @@ keyboardView.frame = self.view.bounds;
 keyboardView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
 [self.view addSubview:keyboardView];
 ```
-
-![Demo](Demo.gif)
 
 ## Requirements
 * ARC
