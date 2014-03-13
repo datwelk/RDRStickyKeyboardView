@@ -383,6 +383,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
 				INFOPLIST_FILE = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -396,6 +397,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Prefix.pch";
 				INFOPLIST_FILE = "RDRStickyKeyboardViewExample/RDRStickyKeyboardViewExample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -462,6 +464,7 @@
 				907FB7F31889DC6000374F30 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		907FB7F41889DC6000374F30 /* Build configuration list for PBXNativeTarget "RDRStickyKeyboardViewExampleTests" */ = {
 			isa = XCConfigurationList;
@@ -470,6 +473,7 @@
 				907FB7F61889DC6000374F30 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -65,8 +65,8 @@ static BOOL RDRKeyboardSizeEqualsInputViewSize(CGRect keyboardFrame,
  * of endFrame equal the height of endFrame after converting
  * both parameters to view coordinates.
  */
-static BOOL RDRKeyboardFrameChangeIsShowHideAnimation(CGRect beginFrame,
-                                                      CGRect endFrame) {
+static BOOL RDRKeyboardFrameChangeEqualsKeyboardHeight(CGRect beginFrame,
+                                                       CGRect endFrame) {
     UIWindow *window = [[UIApplication sharedApplication] keyWindow];
     UIView *view = window.rootViewController.view;
     
@@ -82,6 +82,30 @@ static BOOL RDRKeyboardFrameChangeIsShowHideAnimation(CGRect beginFrame,
     // one keyboard height
     if (fabs(endFrameConverted.origin.y - beginFrameConverted.origin.y)
         != endFrameConverted.size.height) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+static BOOL RDRKeyboardFrameChangeEqualsInputViewHeight(CGRect beginFrame,
+                                                        CGRect endFrame,
+                                                        CGRect inputViewBounds) {
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    UIView *view = window.rootViewController.view;
+    
+    // Convert the begin frame to view coordinates
+    CGRect beginFrameConverted = [view convertRect:beginFrame
+                                          fromView:nil];
+    
+    // Convert the end frame to view coordinates
+    CGRect endFrameConverted = [view convertRect:endFrame
+                                        fromView:nil];
+    
+    // New and old keyboard origin should differ exactly
+    // one keyboard height
+    if (fabs(endFrameConverted.origin.y - beginFrameConverted.origin.y)
+        != inputViewBounds.size.height) {
         return NO;
     }
     
@@ -583,7 +607,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // New and old keyboard origin should differ exactly
     // one keyboard height
-    if (!RDRKeyboardFrameChangeIsShowHideAnimation(beginFrame, endFrame)) {
+    if (!RDRKeyboardFrameChangeEqualsKeyboardHeight(beginFrame, endFrame)) {
         return;
     }
     
@@ -635,6 +659,20 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
         return;
     }
     
+    // Workaround for change in iOS 7.1: a frame change
+    // notification is posted when the keyboard itself has
+    // already disappeared and the input view is at the
+    // bottom of the screen and about to follow the keyboard
+    // into disappearance.
+    // We hook into this notification and hide the input
+    // view, so we do not see the input view traverse downwards
+    // while overlapping the dummy input view (fixes #3).
+    if (RDRKeyboardFrameChangeEqualsInputViewHeight(beginFrame,
+                                                    endFrame,
+                                                    inputViewBounds)){
+        self.inputView.alpha = 0.0f;
+    }
+    
     // Construct the frame that should actually have been
     // passed into the userinfo dictionary and use it
     // internally.
@@ -679,7 +717,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Disregard when old and new keyboard origin differ
     // exactly one keyboard height
-    if (RDRKeyboardFrameChangeIsShowHideAnimation(beginFrame, endFrame)) {
+    if (RDRKeyboardFrameChangeEqualsKeyboardHeight(beginFrame, endFrame)) {
         return;
     }
     
