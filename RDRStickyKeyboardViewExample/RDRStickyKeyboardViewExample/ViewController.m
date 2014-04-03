@@ -66,6 +66,15 @@ static NSString * const CellIdentifier = @"cell";
     self.contentWrapper.frame = self.view.bounds;
     self.contentWrapper.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:self.contentWrapper];
+    
+    [self.contentWrapper.inputView.leftButton addTarget:self
+                                                 action:@selector(_leftButtonClicked:)
+                                       forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)_leftButtonClicked:(id)sender
+{
+    [self.contentWrapper invalidateInputView];
 }
 
 #pragma mark - UITableViewDelegate/UITableViewDataSource

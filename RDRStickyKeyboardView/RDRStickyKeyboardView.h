@@ -57,10 +57,18 @@
 @interface RDRStickyKeyboardView : UIView
 
 @property (nonatomic, strong, readonly) UIScrollView *scrollView;
+
+// The inputView that is always on the bottom of the view.
 @property (nonatomic, strong, readonly) RDRKeyboardInputView *inputView;
 
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;
-- (void)reloadInputAccessoryView;
+
+// Call this method after you have made changes to
+// the `inputView` property. Changes will be propagated
+// to the inputView that is stuck to the keyboard once
+// the keyboard has disappeared and is about to appear
+// again.
+- (void)invalidateInputView;
 
 @end

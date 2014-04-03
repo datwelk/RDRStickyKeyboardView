@@ -231,6 +231,29 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     return self;
 }
 
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder
+{
+    if (self = [super initWithCoder:decoder])
+    {
+        _textView = [decoder decodeObjectForKey:NSStringFromSelector(@selector(textView))];
+        _leftButton = [decoder decodeObjectForKey:NSStringFromSelector(@selector(leftButton))];
+        _rightButton = [decoder decodeObjectForKey:NSStringFromSelector(@selector(rightButton))];
+        
+        [self _setupSubviews];
+    }
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder
+{
+    [coder encodeObject:self.textView forKey:NSStringFromSelector(@selector(textView))];
+    [coder encodeObject:self.leftButton forKey:NSStringFromSelector(@selector(leftButton))];
+    [coder encodeObject:self.rightButton forKey:NSStringFromSelector(@selector(rightButton))];
+}
+
 #pragma mark - Getters
 
 - (UITextView *)textView
@@ -281,7 +304,44 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     return _rightButton;
 }
 
+#pragma mark - Public
+
+- (instancetype)copy
+{
+    NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:self];
+    RDRKeyboardInputView *inputViewKeyboard = (RDRKeyboardInputView *)
+    [NSKeyedUnarchiver unarchiveObjectWithData:archivedData];
+    
+    inputViewKeyboard.textView.layer.cornerRadius = self.textView.layer.cornerRadius;
+    inputViewKeyboard.textView.layer.borderWidth = self.textView.layer.borderWidth;
+    inputViewKeyboard.textView.layer.borderColor = self.textView.layer.borderColor;
+    inputViewKeyboard.textView.delegate = self.textView.delegate;
+    
+    [self _copyButtonActions:self.leftButton
+                 destination:inputViewKeyboard.leftButton];
+    [self _copyButtonActions:self.rightButton
+                 destination:inputViewKeyboard.rightButton];
+
+    return inputViewKeyboard;
+}
+
 #pragma mark - Private
+
+- (void)_copyButtonActions:(UIButton *)source
+               destination:(UIButton *)destination
+{
+    for (id target in source.allTargets) {
+        UIControlEvents events = [source allControlEvents];
+        NSArray *actions = [source actionsForTarget:target
+                                    forControlEvent:events];
+        
+        for (NSString *action in actions) {
+            [destination addTarget:target
+                            action:NSSelectorFromString(action)
+                  forControlEvents:events];
+        }
+    }
+}
 
 - (void)_setupSubviews
 {
@@ -299,14 +359,13 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 - (void)_setupConstraints
 {
     // Calculate frame with current settings
-    CGFloat height = RDRTextViewHeight(self.textView) +
-    (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
+    CGFloat height = 33.895000 + (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
     height = roundf(height);
     
     CGRect newFrame = self.frame;
     newFrame.size.height = height;
     self.frame = newFrame;
-    
+        
     // Calculate button margin with new frame height
     [self.leftButton sizeToFit];
     [self.rightButton sizeToFit];
@@ -436,11 +495,13 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
-@interface RDRStickyKeyboardView () <UITextViewDelegate> {
+@interface RDRStickyKeyboardView () {
     UIInterfaceOrientation _currentOrientation;
+    BOOL _invalidatedInputView;
 }
 
-@property (nonatomic, strong) RDRKeyboardInputView *dummyInputView;
+@property (nonatomic, strong) RDRKeyboardInputView *inputViewScrollView;
+@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewKeyboard;
 
 @end
 
@@ -471,6 +532,13 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     [self _unregisterForNotifications];
 }
 
+#pragma mark - Getters
+
+- (RDRKeyboardInputView *)inputView
+{
+    return self.inputViewScrollView;
+}
+
 #pragma mark - Overrides
 
 - (void)willMoveToSuperview:(UIView *)newSuperview
@@ -486,10 +554,9 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 #pragma mark - Public
 
-- (void)reloadInputAccessoryView
+- (void)invalidateInputView
 {
-    [self _updateInputViewFrameWithKeyboardFrame:CGRectZero
-                                     forceReload:YES];
+    _invalidatedInputView = YES;
 }
 
 #pragma mark - Private
@@ -501,41 +568,23 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Setup the view where the user will actually
     // be typing in
-    _inputView = [RDRKeyboardInputView new];
-    self.inputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
-    UIViewAutoresizingFlexibleHeight;
-    self.inputView.textView.delegate = self;
-    
-    // Setup a dummy input view that appears on the bottom
-    // of this view, right below the scrollview. The user will
-    // tap the dummy view, whose textview's inputAccessoryView is
-    // the actual input view. The actual input view will be made
-    // first responder as soon as the dummy view's textview
-    // has become first responder.
-    self.dummyInputView = [RDRKeyboardInputView new];
-    self.dummyInputView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
+    _inputViewScrollView = [RDRKeyboardInputView new];
+    self.inputViewScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
     UIViewAutoresizingFlexibleTopMargin;
-    self.dummyInputView.textView.inputAccessoryView = self.inputView;
-    self.dummyInputView.textView.tintColor = [UIColor clearColor]; // hide cursor
-    self.dummyInputView.textView.delegate = self;
-    [self addSubview:self.dummyInputView];
+    [self addSubview:self.inputViewScrollView];
 }
 
 - (void)_setInitialFrames
 {
+    CGRect dummyInputViewFrame = self.inputViewScrollView.frame;
+    dummyInputViewFrame.size.width = self.frame.size.width;
+    dummyInputViewFrame.origin.y = self.frame.size.height - dummyInputViewFrame.size.height;
+    self.inputViewScrollView.frame = dummyInputViewFrame;
+    
     CGRect scrollViewFrame = CGRectZero;
     scrollViewFrame.size.width = self.frame.size.width;
-    scrollViewFrame.size.height = self.frame.size.height - self.inputView.frame.size.height;
+    scrollViewFrame.size.height = self.frame.size.height - self.inputViewScrollView.frame.size.height;
     self.scrollView.frame = scrollViewFrame;
-    
-    CGRect inputViewFrame = self.inputView.frame;
-    inputViewFrame.size.width = self.frame.size.width;
-    self.inputView.frame = inputViewFrame;
-    
-    CGRect dummyInputViewFrame = CGRectZero;
-    dummyInputViewFrame.origin.y = self.frame.size.height - inputViewFrame.size.height;
-    dummyInputViewFrame.size = inputViewFrame.size;
-    self.dummyInputView.frame = dummyInputViewFrame;
 }
 
 #pragma mark - Notifications
@@ -556,6 +605,16 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
                                              selector:@selector(_keyboardWillHide:)
                                                  name:UIKeyboardWillHideNotification
                                                object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(_textViewDidEndEditing:)
+                                                 name:UITextViewTextDidEndEditingNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(_textViewDidChange:)
+                                                 name:UITextViewTextDidChangeNotification
+                                               object:nil];
 }
 
 - (void)_unregisterForNotifications
@@ -571,6 +630,14 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIKeyboardWillHideNotification
                                                   object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UITextViewTextDidEndEditingNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UITextViewTextDidChangeNotification
+                                                  object:nil];
 }
 
 #pragma mark - Notification handlers
@@ -584,19 +651,15 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
     
+    if (!self.inputViewKeyboard) {
+        [self _revalidateInputView]; return;
+    }
+    
     // Check if orientation changed
     [self _updateInputViewFrameIfOrientationChanged:endFrame];
+    [self.inputViewKeyboard.textView becomeFirstResponder];
     
-    // This method is called because the user has tapped
-    // the dummy input view, which has become first responder.
-    // Take over first responder status from the dummy input view
-    // and transfer it to the actual input view, which is the
-    // inputAccessoryView of the dummy input view.
-    [self.inputView.textView becomeFirstResponder];
-    
-    // Disregard false notification
-    // This works around a bug in iOS
-    CGRect inputViewBounds = self.inputView.bounds;
+    CGRect inputViewBounds = self.inputViewKeyboard.bounds;
     if (RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
@@ -621,10 +684,15 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
         return;
     }
     
-    [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-    [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
-                                          duration:duration
-                                   completionBlock:nil];
+    if (_invalidatedInputView) {
+        [self _revalidateInputView];
+    }
+    else {
+        [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
+        [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
+                                              duration:duration
+                                       completionBlock:nil];
+    }
 }
 
 - (void)_keyboardWillChangeFrame:(NSNotification *)notification
@@ -654,7 +722,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // When the user has lifted his or her finger, the
     // size of the end frame equals the size of the input view.
-    CGRect inputViewBounds = self.inputView.bounds;
+    CGRect inputViewBounds = self.inputViewKeyboard.bounds;
     if (!RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
@@ -670,7 +738,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     if (RDRKeyboardFrameChangeEqualsInputViewHeight(beginFrame,
                                                     endFrame,
                                                     inputViewBounds)){
-        self.inputView.alpha = 0.0f;
+        self.inputViewKeyboard.alpha = 0.0f;
     }
     
     // Construct the frame that should actually have been
@@ -694,6 +762,25 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
                                    completionBlock:nil];
 }
 
+#pragma mark - UITextView
+
+- (void)_textViewDidEndEditing:(NSNotification *)notification
+{
+    UITextView *textView = notification.object;
+    
+    if (textView == self.inputViewKeyboard.textView) {
+        // Synchronize text between actual input view and
+        // dummy input view.
+        self.inputViewScrollView.textView.text = textView.text;
+    }
+}
+
+- (void)_textViewDidChange:(NSNotification *)notification
+{
+    [self _updateInputViewFrameWithKeyboardFrame:CGRectZero
+                                     forceReload:NO];
+}
+
 #pragma mark - Notification handler helpers
 
 - (void)_keyboardWillSwitch:(NSNotification *)notification
@@ -706,7 +793,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Disregard false notification
     // This works around a bug in iOS
-    CGRect inputViewBounds = self.inputView.bounds;
+    CGRect inputViewBounds = self.inputViewKeyboard.bounds;
     if (RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
         return;
     }
@@ -747,7 +834,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
                                     fromView:nil];
     
     CGFloat keyboardHeight = convertedRect.size.height;
-    CGFloat inputViewHeight = self.inputView.bounds.size.height;
+    CGFloat inputViewHeight = self.inputViewKeyboard.bounds.size.height;
     
     // If the keyboard is hidden, set bottom inset to zero.
     // If the keyboard is not hidden, set the content inset's bottom
@@ -785,11 +872,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
                                    forceReload:(BOOL)reload
 {
     // If the keyboardFrame equals CGRectZero and
-    // the inputView is not visible yet, we won't be able
+    // the inputViewKeyboard is not visible yet, we won't be able
     // to access the keyboard's frame.
 #ifdef DEBUG
     NSCAssert(!(CGRectEqualToRect(keyboardFrame, CGRectZero) &&
-                self.inputView.superview == nil), nil);
+                self.inputViewKeyboard.superview == nil), nil);
 #endif
     
     // Check if we can manually grab the keyboard's frame.
@@ -798,9 +885,9 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     UIView *view = window.rootViewController.view;
     CGRect windowKeyboardFrame = keyboardFrame;
     
-    if (self.inputView.superview != nil) {
-        windowKeyboardFrame = [window convertRect:self.inputView.superview.frame
-                                         fromView:self.inputView.superview.superview];
+    if (self.inputViewKeyboard.superview != nil) {
+        windowKeyboardFrame = [window convertRect:self.inputViewKeyboard.superview.frame
+                                         fromView:self.inputViewKeyboard.superview.superview];
     }
     
     // Convert keyboard frame to view coordinates
@@ -810,11 +897,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // Calculate max input view height
     CGFloat maxInputViewHeight = viewKeyboardFrame.origin.y -
     self.frame.origin.y - self.scrollView.contentInset.top;
-    maxInputViewHeight += self.inputView.bounds.size.height;
+    maxInputViewHeight += self.inputViewKeyboard.bounds.size.height;
     
     // Calculate the height the input view ideally
     // has based on its textview's content
-    UITextView *textView = self.inputView.textView;
+    UITextView *textView = self.inputViewKeyboard.textView;
     CGFloat newInputViewHeight = RDRTextViewHeight(textView);
     newInputViewHeight += (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
     newInputViewHeight = ceilf(newInputViewHeight);
@@ -822,7 +909,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // If the new input view height equals the current,
     // nothing has to be changed
-    if (self.inputView.bounds.size.height == newInputViewHeight) {
+    if (self.inputViewKeyboard.bounds.size.height == newInputViewHeight) {
         return;
     }
     
@@ -834,50 +921,47 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // The new input view height is different from the current.
     // Update the dummy input view's frame
-    CGRect dummyInputViewFrame = self.dummyInputView.frame;
+    CGRect dummyInputViewFrame = self.inputViewScrollView.frame;
     dummyInputViewFrame.size.height = newInputViewHeight;
     dummyInputViewFrame.origin.y = self.frame.size.height - newInputViewHeight;
-    self.dummyInputView.frame = dummyInputViewFrame;
+    self.inputViewScrollView.frame = dummyInputViewFrame;
     
     // Update the actual input view's height
     // This will cause the keyboardWillChange notification to be fired.
     // The handler of the keyboardWillChange notification will
     // subsequently take care of resizing the scrollview and
     // its content, so we don't have to do that here.
-    CGRect inputViewFrame = self.inputView.frame;
+    CGRect inputViewFrame = self.inputViewKeyboard.frame;
     inputViewFrame.size.height = newInputViewHeight;
-    self.inputView.frame = inputViewFrame;
+    self.inputViewKeyboard.frame = inputViewFrame;
     
     // If the changes should be propagated with force,
     // call reloadInputViews on the dummy text view.
     // reloadInputViews will only have effect if the
     // callee is the current first responder.
     if (reload) {
-        [self.dummyInputView.textView becomeFirstResponder];
-        [self.dummyInputView.textView reloadInputViews];
-        [self.inputView.textView becomeFirstResponder];
+        [self.inputViewScrollView.textView becomeFirstResponder];
+        [self.inputViewScrollView.textView reloadInputViews];
+        [self.inputViewKeyboard.textView becomeFirstResponder];
     }
 }
 
-#pragma mark - UITextViewDelegate
-
-- (BOOL)textViewShouldEndEditing:(UITextView *)textView
+- (void)_revalidateInputView
 {
-    if (textView != self.inputView.textView) {
-        return YES;
-    }
+    _invalidatedInputView = NO;
     
-    // Synchronize text between actual input view and
-    // dummy input view.
-    self.dummyInputView.textView.text = textView.text;
+    _inputViewKeyboard = [self.inputViewScrollView copy];
+    self.inputViewKeyboard.autoresizingMask = UIViewAutoresizingFlexibleWidth|
+    UIViewAutoresizingFlexibleHeight;
     
-    return YES;
-}
-
-- (void)textViewDidChange:(UITextView *)textView
-{
-    [self _updateInputViewFrameWithKeyboardFrame:CGRectZero
-                                     forceReload:NO];
+    CGRect frame = CGRectZero;
+    frame.size = self.inputViewScrollView.frame.size;
+    self.inputViewKeyboard.frame = frame;
+    
+    self.inputViewScrollView.textView.inputAccessoryView = self.inputViewKeyboard;
+    
+    [self.inputViewScrollView.textView resignFirstResponder];
+    [self.inputViewScrollView.textView becomeFirstResponder];
 }
 
 @end
