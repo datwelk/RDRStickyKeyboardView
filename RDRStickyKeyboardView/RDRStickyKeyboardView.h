@@ -58,17 +58,14 @@
 
 @property (nonatomic, strong, readonly) UIScrollView *scrollView;
 
-// The inputView that is always on the bottom of the view.
-@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputView;
+// The inputView that is always visible, right below the content
+@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewScrollView;
+
+// The inputView that is stuck to the keyboard and is only visible when
+// the keyboard is visible.
+@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewKeyboard;
 
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;
-
-// Call this method after you have made changes to
-// the `inputView` property. Changes will be propagated
-// to the inputView that is stuck to the keyboard once
-// the keyboard has disappeared and is about to appear
-// again.
-- (void)invalidateInputView;
 
 @end

@@ -315,33 +315,11 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     inputViewKeyboard.textView.layer.cornerRadius = self.textView.layer.cornerRadius;
     inputViewKeyboard.textView.layer.borderWidth = self.textView.layer.borderWidth;
     inputViewKeyboard.textView.layer.borderColor = self.textView.layer.borderColor;
-    inputViewKeyboard.textView.delegate = self.textView.delegate;
-    
-    [self _copyButtonActions:self.leftButton
-                 destination:inputViewKeyboard.leftButton];
-    [self _copyButtonActions:self.rightButton
-                 destination:inputViewKeyboard.rightButton];
 
     return inputViewKeyboard;
 }
 
 #pragma mark - Private
-
-- (void)_copyButtonActions:(UIButton *)source
-               destination:(UIButton *)destination
-{
-    for (id target in source.allTargets) {
-        UIControlEvents events = [source allControlEvents];
-        NSArray *actions = [source actionsForTarget:target
-                                    forControlEvent:events];
-        
-        for (NSString *action in actions) {
-            [destination addTarget:target
-                            action:NSSelectorFromString(action)
-                  forControlEvents:events];
-        }
-    }
-}
 
 - (void)_setupSubviews
 {
@@ -497,11 +475,9 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 @interface RDRStickyKeyboardView () {
     UIInterfaceOrientation _currentOrientation;
-    BOOL _invalidatedInputView;
+    RDRKeyboardInputView *_inputViewKeyboard;
+    RDRKeyboardInputView *_inputViewScrollView;
 }
-
-@property (nonatomic, strong) RDRKeyboardInputView *inputViewScrollView;
-@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewKeyboard;
 
 @end
 
@@ -534,9 +510,22 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 #pragma mark - Getters
 
-- (RDRKeyboardInputView *)inputView
+- (RDRKeyboardInputView *)inputViewKeyboard
 {
-    return self.inputViewScrollView;
+    if (!_inputViewKeyboard) {
+        _inputViewKeyboard = [self.inputViewScrollView copy];
+    }
+    
+    return _inputViewKeyboard;
+}
+
+- (RDRKeyboardInputView *)inputViewScrollView
+{
+    if (!_inputViewScrollView) {
+        _inputViewScrollView = [RDRKeyboardInputView new];
+    }
+    
+    return _inputViewScrollView;
 }
 
 #pragma mark - Overrides
@@ -552,13 +541,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     [super willMoveToSuperview:newSuperview];
 }
 
-#pragma mark - Public
-
-- (void)invalidateInputView
-{
-    _invalidatedInputView = YES;
-}
-
 #pragma mark - Private
 
 - (void)_setupSubviews
@@ -568,10 +550,18 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Setup the view where the user will actually
     // be typing in
-    _inputViewScrollView = [RDRKeyboardInputView new];
     self.inputViewScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|
     UIViewAutoresizingFlexibleTopMargin;
     [self addSubview:self.inputViewScrollView];
+    
+    CGRect frame = CGRectZero;
+    frame.size = self.inputViewScrollView.frame.size;
+    self.inputViewKeyboard.frame = frame;
+    
+    self.inputViewScrollView.textView.inputAccessoryView = self.inputViewKeyboard;
+    self.inputViewKeyboard.autoresizingMask = UIViewAutoresizingFlexibleWidth|
+    UIViewAutoresizingFlexibleHeight;
+    
 }
 
 - (void)_setInitialFrames
@@ -651,10 +641,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     CGFloat duration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] doubleValue];
     UIViewAnimationCurve curve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
     
-    if (!self.inputViewKeyboard) {
-        [self _revalidateInputView]; return;
-    }
-    
     // Check if orientation changed
     [self _updateInputViewFrameIfOrientationChanged:endFrame];
     [self.inputViewKeyboard.textView becomeFirstResponder];
@@ -684,15 +670,10 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
         return;
     }
     
-    if (_invalidatedInputView) {
-        [self _revalidateInputView];
-    }
-    else {
-        [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
-        [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
-                                              duration:duration
-                                       completionBlock:nil];
-    }
+    [self _scrollViewAdaptInsetsToKeyboardFrame:endFrame];
+    [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
+                                          duration:duration
+                                   completionBlock:nil];
 }
 
 - (void)_keyboardWillChangeFrame:(NSNotification *)notification
@@ -944,24 +925,6 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
         [self.inputViewScrollView.textView reloadInputViews];
         [self.inputViewKeyboard.textView becomeFirstResponder];
     }
-}
-
-- (void)_revalidateInputView
-{
-    _invalidatedInputView = NO;
-    
-    _inputViewKeyboard = [self.inputViewScrollView copy];
-    self.inputViewKeyboard.autoresizingMask = UIViewAutoresizingFlexibleWidth|
-    UIViewAutoresizingFlexibleHeight;
-    
-    CGRect frame = CGRectZero;
-    frame.size = self.inputViewScrollView.frame.size;
-    self.inputViewKeyboard.frame = frame;
-    
-    self.inputViewScrollView.textView.inputAccessoryView = self.inputViewKeyboard;
-    
-    [self.inputViewScrollView.textView resignFirstResponder];
-    [self.inputViewScrollView.textView becomeFirstResponder];
 }
 
 @end
