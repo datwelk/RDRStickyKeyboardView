@@ -66,6 +66,15 @@ static NSString * const CellIdentifier = @"cell";
     self.contentWrapper.frame = self.view.bounds;
     self.contentWrapper.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
     [self.view addSubview:self.contentWrapper];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"SHOW");
+        [self.contentWrapper showKeyboard];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"HIDE");
+        [self.contentWrapper hideKeyboard];
+    });
 }
 
 #pragma mark - UITableViewDelegate/UITableViewDataSource

@@ -548,6 +548,19 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     [super willMoveToSuperview:newSuperview];
 }
 
+#pragma mark - Public
+
+- (void)showKeyboard
+{
+    [self.inputViewScrollView.textView becomeFirstResponder];
+}
+
+- (void)hideKeyboard
+{
+    [self.inputViewKeyboard.textView resignFirstResponder];
+    [self.inputViewScrollView.textView resignFirstResponder];
+}
+
 #pragma mark - Private
 
 - (void)_setupSubviews
@@ -712,7 +725,13 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // size of the end frame equals the size of the input view.
     CGRect inputViewBounds = self.inputViewKeyboard.bounds;
     if (!RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
-        return;
+        // Check if keyboard might have been dismissed programmatically
+        if (!RDRKeyboardFrameChangeEqualsKeyboardHeight(beginFrame, endFrame)) {
+            return;
+        }
+        if (!RDRKeyboardIsFullyShown(beginFrame)) {
+            return;
+        }
     }
     
     // Workaround for change in iOS 7.1: a frame change
@@ -722,7 +741,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     // into disappearance.
     // We hook into this notification and hide the input
     // view, so we do not see the input view traverse downwards
-    // while overlapping the dummy input view (fixes #3).
+    // while overlapping the dummy input view (fixes issue #3).
     if (RDRKeyboardFrameChangeEqualsInputViewHeight(beginFrame,
                                                     endFrame,
                                                     inputViewBounds)){

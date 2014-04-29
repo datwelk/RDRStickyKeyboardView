@@ -70,4 +70,7 @@
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;
 
+- (void)showKeyboard;
+- (void)hideKeyboard;
+
 @end
