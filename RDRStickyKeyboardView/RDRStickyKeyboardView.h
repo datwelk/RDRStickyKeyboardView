@@ -62,8 +62,10 @@
 @property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewScrollView;
 
 // The inputView that is stuck to the keyboard and is only visible when
-// the keyboard is visible.
-@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewKeyboard;
+// the keyboard is visible. This inputView is internally called
+// inputViewKeyboard. For backwards compatibility purposes it
+// is exposed as `inputView`.
+@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputView;
 
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;

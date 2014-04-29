@@ -479,6 +479,8 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     RDRKeyboardInputView *_inputViewScrollView;
 }
 
+@property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewKeyboard;
+
 @end
 
 @implementation RDRStickyKeyboardView
@@ -526,6 +528,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     }
     
     return _inputViewScrollView;
+}
+
+- (RDRKeyboardInputView *)inputView
+{
+    return self.inputViewKeyboard;
 }
 
 #pragma mark - Overrides
