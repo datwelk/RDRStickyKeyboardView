@@ -58,7 +58,12 @@
 
 @property (nonatomic, strong, readonly) UIScrollView *scrollView;
 
-// The inputView that is always visible, right below the content
+// The inputView that is always visible, right below the content.
+// Everything you visually customize on this property will
+// also appear on the `inputView` property, as long as
+// you do not access `inputView` before customizing this
+// property (`inputView` is a lazily loaded copy of
+// `inputViewScrollView`).
 @property (nonatomic, strong, readonly) RDRKeyboardInputView *inputViewScrollView;
 
 // The inputView that is stuck to the keyboard and is only visible when
