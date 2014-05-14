@@ -663,13 +663,14 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Check if orientation changed
     [self _updateInputViewFrameIfOrientationChanged:endFrame];
-    [self.inputViewKeyboard.textView becomeFirstResponder];
     
     CGRect inputViewBounds = self.inputViewKeyboard.bounds;
     if (RDRKeyboardSizeEqualsInputViewSize(endFrame, inputViewBounds)) {
-        return;
+        return; // escape when the input view is at the bottom of window
     }
     
+    [self.inputViewKeyboard.textView becomeFirstResponder];
+  
     if (RDRKeyboardSizeEqualsInputViewSize(beginFrame, inputViewBounds)) {
         return;
     }
@@ -767,6 +768,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     [self.scrollView rdr_scrollToBottomWithOptions:RDRAnimationOptionsForCurve(curve)
                                           duration:duration
                                    completionBlock:nil];
+    
+    if ([self.inputViewKeyboard.textView isFirstResponder]) {
+        [self.inputViewKeyboard.textView resignFirstResponder];
+    }
+
 }
 
 #pragma mark - UITextView
