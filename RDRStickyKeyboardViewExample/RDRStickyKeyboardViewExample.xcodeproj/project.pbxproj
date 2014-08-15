@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F6CBFAC199EAAB500E72BD4 /* RDRTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6CBFAB199EAAB500E72BD4 /* RDRTextView.m */; };
 		907FB7C91889DC5F00374F30 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7C81889DC5F00374F30 /* Foundation.framework */; };
 		907FB7CB1889DC5F00374F30 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7CA1889DC5F00374F30 /* CoreGraphics.framework */; };
 		907FB7CD1889DC5F00374F30 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907FB7CC1889DC5F00374F30 /* UIKit.framework */; };
@@ -34,6 +35,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4F6CBFAA199EAAB500E72BD4 /* RDRTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RDRTextView.h; sourceTree = "<group>"; };
+		4F6CBFAB199EAAB500E72BD4 /* RDRTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RDRTextView.m; sourceTree = "<group>"; };
 		907FB7C51889DC5F00374F30 /* RDRStickyKeyboardViewExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RDRStickyKeyboardViewExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		907FB7C81889DC5F00374F30 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		907FB7CA1889DC5F00374F30 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -158,6 +161,8 @@
 			children = (
 				907FB7FB1889DE0300374F30 /* RDRStickyKeyboardView.h */,
 				907FB7FC1889DE0300374F30 /* RDRStickyKeyboardView.m */,
+				4F6CBFAA199EAAB500E72BD4 /* RDRTextView.h */,
+				4F6CBFAB199EAAB500E72BD4 /* RDRTextView.m */,
 			);
 			name = RDRStickyKeyboardView;
 			path = ../RDRStickyKeyboardView;
@@ -261,6 +266,7 @@
 				907FB7F91889DC7700374F30 /* ViewController.m in Sources */,
 				907FB7D91889DC5F00374F30 /* AppDelegate.m in Sources */,
 				907FB7FD1889DE0300374F30 /* RDRStickyKeyboardView.m in Sources */,
+				4F6CBFAC199EAAB500E72BD4 /* RDRTextView.m in Sources */,
 				907FB7D51889DC5F00374F30 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -163,14 +163,14 @@ static BOOL RDRKeyboardIsFullyHidden(CGRect keyboardFrame) {
 }
 
 /*
- * @param textView A UITextView instance whose height
+ * @param textView A RDRTextView instance whose height
  * should be calculated if no text is wrapped.
  *
  * @return A CGFloat value indicating the height
- * the UITextView instance should be if all text
+ * the RDRTextView instance should be if all text
  * is visible.
  */
-static inline CGFloat RDRTextViewHeight(UITextView *textView) {
+static inline CGFloat RDRTextViewHeight(RDRTextView *textView) {
     NSTextContainer *textContainer = textView.textContainer;
     CGRect textRect =
     [textView.layoutManager usedRectForTextContainer:textContainer];
@@ -207,7 +207,7 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 #define RDR_KEYBOARD_INPUT_VIEW_MARGIN_BUTTONS_VERTICAL             7
 
 @interface RDRKeyboardInputView () {
-    UITextView *_textView;
+    RDRTextView *_textView;
     UIButton *_leftButton;
     UIButton *_rightButton;
 }
@@ -256,13 +256,13 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
 
 #pragma mark - Getters
 
-- (UITextView *)textView
+- (RDRTextView *)textView
 {
     if (_textView != nil) {
         return _textView;
     }
     
-    _textView = [UITextView new];
+    _textView = [RDRTextView new];
     self.textView.font = [UIFont systemFontOfSize:15.0f];
     self.textView.layer.cornerRadius = 5.0f;
     self.textView.layer.borderWidth = 1.0f;
@@ -311,6 +311,14 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     NSData *archivedData = [NSKeyedArchiver archivedDataWithRootObject:self];
     RDRKeyboardInputView *inputViewKeyboard = (RDRKeyboardInputView *)
     [NSKeyedUnarchiver unarchiveObjectWithData:archivedData];
+    
+    inputViewKeyboard.textView.placeholderColor = self.textView.placeholderColor;
+    inputViewKeyboard.textView.placeholder = self.textView.placeholder;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:inputViewKeyboard.textView
+                                             selector:NSSelectorFromString(@"_textViewDidChange:")
+                                                 name:UITextViewTextDidChangeNotification
+                                               object:nil];
     
     inputViewKeyboard.textView.layer.cornerRadius = self.textView.layer.cornerRadius;
     inputViewKeyboard.textView.layer.borderWidth = self.textView.layer.borderWidth;
@@ -533,6 +541,20 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 - (RDRKeyboardInputView *)inputView
 {
     return self.inputViewKeyboard;
+}
+
+#pragma mark - Setters
+
+- (void)setPlaceholder:(NSString *)placeholder
+{
+    _inputViewScrollView.textView.placeholder = placeholder;
+    _inputViewKeyboard.textView.placeholder = placeholder;
+}
+
+- (void)setPlaceholderColor:(UIColor *)color
+{
+    _inputViewScrollView.textView.placeholderColor = color;
+    _inputViewKeyboard.textView.placeholderColor = color;
 }
 
 #pragma mark - Overrides
@@ -775,11 +797,11 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
 
 }
 
-#pragma mark - UITextView
+#pragma mark - RDRTextView
 
 - (void)_textViewDidEndEditing:(NSNotification *)notification
 {
-    UITextView *textView = notification.object;
+    RDRTextView *textView = notification.object;
     
     if (textView == self.inputViewKeyboard.textView) {
         // Synchronize text between actual input view and
@@ -914,7 +936,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     
     // Calculate the height the input view ideally
     // has based on its textview's content
-    UITextView *textView = self.inputViewKeyboard.textView;
+    RDRTextView *textView = self.inputViewKeyboard.textView;
     CGFloat newInputViewHeight = RDRTextViewHeight(textView);
     newInputViewHeight += (2 * RDR_KEYBOARD_INPUT_VIEW_MARGIN_VERTICAL);
     newInputViewHeight = ceilf(newInputViewHeight);

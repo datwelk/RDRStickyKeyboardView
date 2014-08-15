@@ -27,6 +27,7 @@
 //  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #import <UIKit/UIKit.h>
+#import "RDRTextView.h"
 
 #pragma mark - RDRKeyboardInputView
 
@@ -34,7 +35,7 @@
 
 @property (nonatomic, strong, readonly) UIButton *leftButton;
 @property (nonatomic, strong, readonly) UIButton *rightButton;
-@property (nonatomic, strong, readonly) UITextView *textView;
+@property (nonatomic, strong, readonly) RDRTextView *textView;
 
 @end
 
@@ -71,6 +72,11 @@
 // inputViewKeyboard. For backwards compatibility purposes it
 // is exposed as `inputView`.
 @property (nonatomic, strong, readonly) RDRKeyboardInputView *inputView;
+
+// Sets an optional placeholder message
+@property (nonatomic, assign) NSString *placeholder;
+// Sets the placeholder's message color
+@property (nonatomic, assign) UIColor *placeholderColor;
 
 // Designated initializer
 - (instancetype)initWithScrollView:(UIScrollView *)scrollView;
