@@ -11,38 +11,39 @@
 #import "RDRTextView.h"
 
 @interface RDRTextView ()
+
 @property (nonatomic, strong) UILabel *placeholderLabel;
+
 @end
 
 @implementation RDRTextView
 
 #pragma mark - Initialization
 
-- (id)init
-{
-    if (self = [super init]) {
-        [self _setupSubviews];
-    }
-    return self;
-}
-
 - (id)initWithFrame:(CGRect)frame
 {
-    if (self = [super initWithFrame:frame]) {
+    if (self = [super initWithFrame:frame])
+    {
         [self _setupSubviews];
+        [self _beginObservingKeyboardNotifications];
     }
+    
     return self;
 }
 
-- (void)awakeFromNib
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    [super awakeFromNib];
-    [self _setupSubviews];
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [self _beginObservingKeyboardNotifications];
+    }
+    
+    return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [self _stopObservingKeyboardNotifications];
 }
 
 #pragma mark - Setup
@@ -51,8 +52,19 @@
 {
     self.placeholderColor = [UIColor lightGrayColor];
     self.font = [UIFont systemFontOfSize:14.0];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(_textViewDidChange:) name:UITextViewTextDidChangeNotification object:nil];
+}
+
+- (void)_beginObservingKeyboardNotifications
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(_textViewDidChange:)
+                                                 name:UITextViewTextDidChangeNotification
+                                               object:nil];
+}
+
+- (void)_stopObservingKeyboardNotifications
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Getters

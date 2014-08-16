@@ -315,15 +315,10 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     inputViewKeyboard.textView.placeholderColor = self.textView.placeholderColor;
     inputViewKeyboard.textView.placeholder = self.textView.placeholder;
     
-    [[NSNotificationCenter defaultCenter] addObserver:inputViewKeyboard.textView
-                                             selector:NSSelectorFromString(@"_textViewDidChange:")
-                                                 name:UITextViewTextDidChangeNotification
-                                               object:nil];
-    
     inputViewKeyboard.textView.layer.cornerRadius = self.textView.layer.cornerRadius;
     inputViewKeyboard.textView.layer.borderWidth = self.textView.layer.borderWidth;
     inputViewKeyboard.textView.layer.borderColor = self.textView.layer.borderColor;
-
+    
     return inputViewKeyboard;
 }
 
@@ -351,7 +346,7 @@ static inline UIViewAnimationOptions RDRAnimationOptionsForCurve(UIViewAnimation
     CGRect newFrame = self.frame;
     newFrame.size.height = height;
     self.frame = newFrame;
-        
+    
     // Calculate button margin with new frame height
     [self.leftButton sizeToFit];
     [self.rightButton sizeToFit];
@@ -692,7 +687,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     }
     
     [self.inputViewKeyboard.textView becomeFirstResponder];
-  
+    
     if (RDRKeyboardSizeEqualsInputViewSize(beginFrame, inputViewBounds)) {
         return;
     }
@@ -794,7 +789,7 @@ static NSInteger const RDRInterfaceOrientationUnknown   = -1;
     if ([self.inputViewKeyboard.textView isFirstResponder]) {
         [self.inputViewKeyboard.textView resignFirstResponder];
     }
-
+    
 }
 
 #pragma mark - RDRTextView
