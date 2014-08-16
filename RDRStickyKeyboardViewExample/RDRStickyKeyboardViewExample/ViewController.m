@@ -65,7 +65,14 @@ static NSString * const CellIdentifier = @"cell";
     self.contentWrapper = [[RDRStickyKeyboardView alloc] initWithScrollView:self.tableView];
     self.contentWrapper.frame = self.view.bounds;
     self.contentWrapper.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
+    self.contentWrapper.placeholder = @"Message";
+    [self.contentWrapper.inputView.rightButton addTarget:self action:@selector(didTapSend:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.contentWrapper];
+}
+
+- (void)didTapSend:(id)sender
+{
+    [self.contentWrapper hideKeyboard];
 }
 
 #pragma mark - UITableViewDelegate/UITableViewDataSource
